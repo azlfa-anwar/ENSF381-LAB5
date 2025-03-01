@@ -4,7 +4,7 @@
 <title>Lab5 - Exercise 1</title>
 </head>
 <body>
-<input type="text" id="textInput" placeholder="Type something here..."/>
+<input type="text" id="textInput" placeholder="Enter a user number(1-30)"/>
 <label id="textLabel"></label>
 <button id="redButton">Red</button>
 <button id="blueButton">Blue</button>
@@ -18,7 +18,8 @@
   inputText.addEventListener('keypress', (event) => {
     if(event.key == "Enter"){
       labelText.innerHTML = inputText.value;
-      inputText.value = "";
+      retrieveData();
+     
     }
   });
 
@@ -44,5 +45,32 @@
       labelText.style.color = "purple";
     });
 
+    async function retrieveData(){
+      try{
+        let res =  await fetch("https://67c2093f61d8935867e539a6.mockapi.io/users_api");
+        let results = await res.json();
+        let userId = parseInt(inputText.value.trim());
+        inputText.value = "";
+        
+        if(userId < 1 || userId > 30){
+          labelText.innerHTML = "Please enter a valid user number(1-30)";
+          return;
+        }
+        let userFound = false;
+        for(let i= 0; i<results.length; i++){
+          if(parseInt(results[i].id) == userId){
+            labelText.innerHTML = `ID: ${results[i].id}, Name: ${results[i].first_name}, Group: ${results[i].user_group}`;
+            userFound = true;
+            break;
+          }
+        }
+        if(!userFound){
+          labelText.innerHTML = "No users were found."
+        }
+      } catch (error) {
+        console.log(error);
+        labelText.innerHTML = "Error fetching user data.";
+      }
+    }
 </script>
 </html>
